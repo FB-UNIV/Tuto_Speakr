@@ -1,0 +1,18 @@
+services:
+  app:
+    image: learnedmachine/speakr:latest
+    container_name: speakr
+    restart: unless-stopped
+    ports:
+      - "8899:8899"
+    env_file:
+      - .env
+    volumes:
+      - ./uploads:/data/uploads
+      - ./instance:/data/instance
+      - ./auto-process/:/data/auto-process
+    networks:
+        - speakr-network
+networks:
+  speakr-network:
+    external: true
