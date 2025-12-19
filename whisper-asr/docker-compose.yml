@@ -26,10 +26,6 @@ services:
       - CACHE_DIR=${CACHE_DIR:-/.cache}
       - PRELOAD_MODEL=${PRELOAD_MODEL:-}
       - MAX_FILE_SIZE_MB=${MAX_FILE_SIZE_MB:-1000}
-      - HTTP_PROXY=http://proxy.univ-lemans.fr:3128
-      - http_proxy=http://proxy.univ-lemans.fr:3128
-      - HTTPS_PROXY=http://proxy.univ-lemans.fr:3128
-      - https_proxy=http://proxy.univ-lemans.fr:3128
     volumes:
       # Persistent cache for models (recommended)
       - whisperx-cache:/.cache
