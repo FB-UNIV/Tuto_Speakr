@@ -57,16 +57,7 @@ Les besoins en mémoire GPU varient selon la taille du modèle Whisper :
 - GPU : NVIDIA RTX 3090 (24 Go de VRAM) ou RTX 4090  
 - CPU : 12 cœurs ou plus  
 - RAM : 32 Go  
-- Stockage : 100 Go SSD  
-
-#### Environnement de test utilisé
-
-Les tests ont été réalisés sur un **DELL Precision 3650** avec la configuration suivante :
-
-- Intel Core i7-10700 @ 2.90 GHz  
-- 16 Go de DDR4 3200 MHz  
-- NVMe 512 Go  
-- NVIDIA RTX A2000 12 Go  
+- Stockage : 100 Go SSD
 
 ---
 
@@ -79,6 +70,17 @@ Les tests ont été réalisés sur un **DELL Precision 3650** avec la configurat
 - NVIDIA Docker Runtime (permet à Docker d’accéder au GPU)
 - Votre éditeur de fichiers préféré
 
+### Environnement de test utilisé
+
+Les tests ont été réalisés sur un **DELL Precision 3650** avec la configuration suivante :
+
+- Intel Core i7-10700 @ 2.90 GHz  
+- 16 Go de DDR4 3200 MHz  
+- NVMe 512 Go  
+- NVIDIA RTX A2000 12 Go  
+
+- Debian 13.2
+- Accès internet derrière le proxy de l'univ
 ---
 
 ## Installation
