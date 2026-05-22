@@ -8,7 +8,6 @@ Conçu pour les groupes et les particuliers soucieux de la confidentialité, il 
 - https://github.com/murtaza-nasir/speakr  
 - https://murtaza-nasir.github.io/speakr  
 - https://github.com/murtaza-nasir/whisperx-asr-service  
-- https://github.com/ahmetoner/whisper-asr-webservice  
 - https://docs.docker.com/engine/install/  
 - https://docs.docker.com/engine/cli/proxy/  
 - https://docs.docker.com/engine/daemon/proxy/  
