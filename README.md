@@ -8,7 +8,6 @@ Conçu pour les groupes et les particuliers soucieux de la confidentialité, il 
 - https://github.com/murtaza-nasir/speakr  
 - https://murtaza-nasir.github.io/speakr  
 - https://github.com/murtaza-nasir/whisperx-asr-service  
-- https://github.com/ahmetoner/whisper-asr-webservice  
 - https://docs.docker.com/engine/install/  
 - https://docs.docker.com/engine/cli/proxy/  
 - https://docs.docker.com/engine/daemon/proxy/  
@@ -64,7 +63,7 @@ Les besoins en mémoire GPU varient selon la taille du modèle Whisper :
 ### Software
 
 - Un OS capable d’installer et d’exécuter Docker  
-  - **Distribution utilisée : Debian 13.2**
+  - **Distribution utilisée : Debian 13**
 - Docker Engine **>= 20.10**
 - Pilote NVIDIA correspondant à votre carte graphique ⚠️
 - NVIDIA Docker Runtime (permet à Docker d’accéder au GPU)
@@ -74,21 +73,30 @@ Les besoins en mémoire GPU varient selon la taille du modèle Whisper :
 
 Les tests ont été réalisés sur un **DELL Precision 3650** avec la configuration suivante :
 
-- Intel Core i7-10700 @ 2.90 GHz  
+- Intel Core i5-10700 @ 2.90 GHz  
 - 16 Go de DDR4 3200 MHz  
 - NVMe 512 Go  
 - NVIDIA RTX A2000 12 Go  
-
-- Debian 13.2
+- Debian 13
 - Accès internet derrière le proxy de l'univ
 ---
 
 ## Installation
 
 > **Disclaimer**  
-> Ce tutoriel est basé sur Debian 13.2 avec une NVIDIA RTX A2000.  
+> Ce tutoriel est basé sur Debian 13 avec une NVIDIA RTX A2000.  
 > La machine dispose d’un accès Internet et d’un proxy configuré.  
-> Toutes les commandes et procédures sont valables à la date du **18/12/2025**.
+> Toutes les commandes et procédures sont valables à la date du **02/06/2026**.
+
+Deux scripts sont disponible pour faciliter l'installation de docker et du nvidia-container-toolkit.
+
+```bash
+chmod +x scripts/docker_source.sh
+chmod +x scripts/install_toolkit.sh
+
+./scripts/docker_source.sh
+./scripts/install_toolkit.sh
+```
 
 ---
 
@@ -251,10 +259,10 @@ sudo apt-get update
 ```
 
 > **Note**
-> La version ci-dessous est valable au **18/12/2025**.
+> La version ci-dessous est valable au **02/06/2026**.
 
 ```bash
-export NVIDIA_CONTAINER_TOOLKIT_VERSION=1.18.1-1
+export NVIDIA_CONTAINER_TOOLKIT_VERSION=1.19.1-1
 sudo apt-get install -y \
   nvidia-container-toolkit=${NVIDIA_CONTAINER_TOOLKIT_VERSION} \
   nvidia-container-toolkit-base=${NVIDIA_CONTAINER_TOOLKIT_VERSION} \
@@ -285,7 +293,7 @@ Si tout est correct, les informations de votre GPU s’affichent :
 > Le projet est en version **ALPHA**.
 > Des bugs, changements de configuration ou comportements instables sont possibles.
 
-Tous les fichiers nécessaires au déploiement se trouvent dans le dossier `whisper-asr/`.
+Les paramétrages sont dans `whisperx-asr.env`
 Prenez le temps de consulter le fichier `docker-compose.yml` ainsi que la documentation officielle.
 
 ---
@@ -324,15 +332,16 @@ Cliquez sur **“Agree and access repository”** pour chacun.
 
 ## Paramétrage du conteneur WhisperX
 
-Fichier de configuration : `whisper-asr/.env`
+Fichier de configuration : `whisperx-asr.env`
 
 ```ini
 HF_TOKEN=VOTRE_TOKEN_HUGGING_FACE
 DEVICE=cuda
 COMPUTE_TYPE=float16
 BATCH_SIZE=16
-PRELOAD_MODEL=medium
+PRELOAD_MODEL=large-v3
 MAX_FILE_SIZE_MB=1000
+SERVE_MODE=simple
 ```
 
 ### Cas d’un environnement avec proxy
@@ -346,15 +355,6 @@ environment:
   - HTTPS_PROXY=http://proxy.XXX:XXX
   - https_proxy=http://proxy.XXX:XXX
 ```
-
-### Démarrage du service
-
-```bash
-cd whisper-asr && docker compose up -d
-```
-
-Le service est lancé en mode détaché sur le **port 9000**
-
 ---
 
 ## Installation et paramétrage de Speakr
@@ -364,23 +364,28 @@ Le service est lancé en mode détaché sur le **port 9000**
 * [https://github.com/murtaza-nasir/speakr](https://github.com/murtaza-nasir/speakr)
 * [https://murtaza-nasir.github.io/speakr/](https://murtaza-nasir.github.io/speakr/)
 
-> **Disclaimer**
-> Le projet est en version **ALPHA**.
-> Des bugs, des changements de configuration ou des comportements instables sont possibles.
-
 Speakr est l’interface Web qui va utiliser l’API WhisperX que nous venons de mettre en place.
 C’est sur cette interface que vous allez pouvoir consulter et interagir avec vos transcriptions.
 
-Tous les fichiers nécessaires au déploiement se trouvent dans le dossier `speakr/`.
+Les paramétrages sont dans `speakr.env`
 Prenez le temps de consulter le fichier `docker-compose.yml` ainsi que la documentation officielle.
 
 ---
-
 ## Paramétrage du conteneur Speakr
 
-Fichier de configuration : `speakr/.env`
-
+Fichier de configuration : `speakr.env`
 Nous allons nous concentrer sur les principaux paramètres.
+---
+
+### Pour le service de transcription local :
+
+```ini
+ASR_BASE_URL=http://whisperx-asr:9000
+ASR_DIARIZE=true
+ASR_RETURN_SPEAKER_EMBEDDINGS=true
+```
+
+Cette configuration permet d’utiliser le service `whisperx-asr` que nous venons de mettre en place précédemment.
 
 ---
 
@@ -405,32 +410,13 @@ TEXT_MODEL_NAME=openai/gpt-4o-mini
 
 ---
 
-### Pour le service de transcription local :
-
-```ini
-# --- Transcription Service (WhisperX ASR Endpoint) ---
-# Setting this to true enables all ASR features including speaker diarization and voice profiles
-# Note: File chunking is NOT supported with ASR endpoints
-USE_ASR_ENDPOINT=true
-
-# WhisperX ASR Endpoint URL
-# For containers in same docker-compose: Use container name and internal port
-# Example: http://whisperx-asr:9000 (NOT the host port or external IP)
-# For external ASR: Use http://192.168.1.100:9000 or http://asr.example.com:9000
-ASR_BASE_URL=http://whisperx-asr:9000
-```
-
-Cette configuration permet d’utiliser le service `whisperx-asr` que nous venons de mettre en place précédemment.
-
----
-
 ### Compte administrateur :
 
 ```ini
 # --- Admin User (created on first run) ---
-ADMIN_USERNAME=admin
-ADMIN_EMAIL=admin@testdomain.fr
-ADMIN_PASSWORD=changeme
+ADMIN_USERNAME=criut
+ADMIN_EMAIL=criut@example.fr
+ADMIN_PASSWORD=criut_super_secure
 ```
 
 **⚠️ Le mot de passe est stocké en clair dans le fichier de configuration ⚠️**
@@ -443,26 +429,19 @@ Pour un usage en production, il est recommandé d’utiliser des secrets :
 
 ---
 
-### Démarrage du service
+### Démarrage de la stack
 
 ```bash
-cd speakr && docker compose up -d
+docker compose up -d
 ```
 
-Le service est lancé en mode détaché sur le **port 8899**.
+Les services (Speakr et Whisperx) sont lancé en mode détaché.
 
 ---
 
 ### Accès à l’interface Web
 
 Vous pouvez enfin accéder à l’interface Web à l’adresse suivante :
-👉 **[http://votre-ip:8899/](http://votre-ip:8899/)**
+👉 **[http://votre-ip/](http://votre-ip/)**
 
 ---
-
-##
-
-
-## Utilisation
-
-*To be continued… en visio*
