@@ -32,18 +32,21 @@ services:
     
     depends_on:
       whisperx-asr:
-        condition: service_healthy   # wait for ASR to be ready
-        required: false              # still start if ASR is absent
+        condition: service_healthy   # Attendre le service ASR
+        required: false              # Lancer quand même si il n'est pas prêt
   
   # WhisperX ASR Service
   whisperx-asr:
-    image: learnedmachine/whisperx-asr-service:0.3.2
+    image: learnedmachine/whisperx-asr-service:0.3.1
     container_name: whisperx-asr
     restart: unless-stopped
+    # 
+    # environment:
+    #   - HF_HUB_OFFLINE=1
     env_file:
       - whisperx-asr.env
     volumes:
-      - whisperx-cache:/.cache
+      - ./data/whisperx/cache:/.cache
     # Configuration du GPU (optionel si CPU)
     deploy:
       resources:
@@ -58,6 +61,3 @@ services:
       timeout: "10s"
       retries: 3
       start_period: "120s"
-
-volumes:
-  whisperx-cache:
