@@ -368,6 +368,8 @@ Speakr est l’interface Web qui va utiliser l’API WhisperX que nous venons de
 C’est sur cette interface que vous allez pouvoir consulter et interagir avec vos transcriptions.
 
 Les paramétrages sont dans `speakr.env`
+Une liste des différents paramètres se trouve ici : [Speakr Vars](./speakr_env_vars.md)
+
 Prenez le temps de consulter le fichier `docker-compose.yml` ainsi que la documentation officielle.
 
 ---
@@ -375,6 +377,7 @@ Prenez le temps de consulter le fichier `docker-compose.yml` ainsi que la docume
 
 Fichier de configuration : `speakr.env`
 Nous allons nous concentrer sur les principaux paramètres.
+
 ---
 
 ### Pour le service de transcription local :
